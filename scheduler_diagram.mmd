@@ -1,0 +1,78 @@
+classDiagram
+    class Updatable {
+        <<interface>>
+        +update(long frameCount)
+    }
+
+    class GameClock {
+        -long frameCount
+        -boolean isPaused
+        -boolean isRunning
+        -List~Updatable~ systems
+        +tick()
+        +start()
+        +pause()
+        +resume()
+        +register(Updatable system)
+        +unregister(Updatable system)
+    }
+
+    class IntervalWrapper {
+        -Updatable targetSystem
+        -int intervalFrames
+        +update(long frameCount)
+    }
+
+    class GameState {
+        -tetrominos.Board board
+        -Tetromino activePiece
+        -boolean gameOver
+        +getBoard()
+        +getActivePiece()
+    }
+
+    class CollisionSystem {
+        +checkCollision(GameState state, int dx, int dy) boolean
+        +isLocked(GameState state) boolean
+    }
+
+    class InputSystem {
+        -GameState state
+        -CollisionSystem collision
+        +update(long frameCount)
+        +handleMove(int dx, int dy)
+        +handleRotate()
+    }
+
+    class GravitySystem {
+        -GameState state
+        -CollisionSystem collision
+        -LineClearSystem lineClear
+        +update(long frameCount)
+        -applyGravity()
+        -lockPiece()
+    }
+
+    class LineClearSystem {
+        -GameState state
+        +update(long frameCount)
+        +checkAndClear()
+    }
+
+    %% Relationships
+    GameClock o-- Updatable : manages
+    IntervalWrapper ..|> Updatable : implements
+    IntervalWrapper o-- Updatable : decorates
+    
+    InputSystem ..|> Updatable : implements
+    GravitySystem ..|> Updatable : implements
+    LineClearSystem ..|> Updatable : implements
+
+    InputSystem --> GameState : modifies
+    InputSystem --> CollisionSystem : uses
+    
+    GravitySystem --> GameState : modifies
+    GravitySystem --> CollisionSystem : uses
+    GravitySystem --> LineClearSystem : triggers
+
+    LineClearSystem --> GameState : modifies

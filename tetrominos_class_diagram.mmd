@@ -1,0 +1,24 @@
+classDiagram
+    class Tetromino {
+        -TetrominoType type
+        -int _rotation_index
+        -List~List~Point~~ rotationPoints
+        +Tetromino(TetrominoType type)
+        +getPoints() List~Point~
+        +rotateClockwise() void
+        +rotateCounterClockwise() void
+    }
+
+    class TetrominoType {
+        <<enumeration>>
+        I
+        O
+        T
+        S
+        Z
+        J
+        L
+        +getRotationPoints() List~List~Point~~
+    }
+
+    Tetromino --> TetrominoType

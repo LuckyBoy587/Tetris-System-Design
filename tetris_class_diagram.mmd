@@ -1,0 +1,82 @@
+classDiagram
+    class TetrisModel {
+        -tetrominos.Board board
+        -Tetromino currentPiece
+        -Tetromino nextPiece
+        -boolean isGameOver
+        -int score
+        -int level
+        -boolean isPaused
+        +startGame()
+        +tick()
+        +moveLeft()
+        +moveRight()
+        +rotate()
+        +softDrop()
+        +hardDrop()
+        +togglePause()
+        -spawnPiece()
+        -lockPiece()
+        -checkGameOver()
+    }
+
+    class Board {
+        -int width
+        -int height
+        -TetrominoType[][] grid
+        +tetrominos.Board(int width, int height)
+        +isPositionValid(Tetromino piece) boolean
+        +placePiece(Tetromino piece)
+        +clearLines() int
+        +getCell(int x, int y) TetrominoType
+        +isEmpty(int x, int y) boolean
+        +getWidth() int
+        +getHeight() int
+        +reset()
+    }
+
+    class Tetromino {
+        -TetrominoType type
+        -int x
+        -int y
+        -int rotationIndex
+        +Tetromino(TetrominoType type, int startX, int startY)
+        +move(int dx, int dy)
+        +rotateClockwise()
+        +rotateCounterClockwise()
+        +getOccupiedCells() List~Point~
+        +getX() int
+        +getY() int
+        +getType() TetrominoType
+        +clone() Tetromino
+    }
+
+    class TetrominoType {
+        <<enumeration>>
+        I
+        O
+        T
+        S
+        Z
+        J
+        L
+        -Point[][] rotationShapes
+        +getShapeOffsets(int rotationIndex) Point[]
+        +getRandom() TetrominoType
+    }
+
+    class Point {
+        +int x
+        +int y
+        +Point(int x, int y)
+        +add(int dx, int dy) Point
+    }
+
+    %% Relationships
+    TetrisModel *-- Board : manages
+    TetrisModel "1" *-- "1" Tetromino : currentPiece
+    TetrisModel "1" *-- "1" Tetromino : nextPiece
+    Tetromino --> TetrominoType : has type
+    Tetromino ..> Point : uses
+    Board --> TetrominoType : stores grid state
+    TetrominoType ..> Point : defines shape
