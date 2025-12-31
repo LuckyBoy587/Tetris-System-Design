@@ -9,6 +9,7 @@ import tetrominos.GameEnvironment;
 import tetrominos.GameUI;
 
 import javax.swing.*;
+import java.awt.*;
 
 void main() {
     final int ROWS = 15;
@@ -22,6 +23,9 @@ void main() {
     MovementState movementState = new MovementState();
     frame.add(ui);
     frame.pack();
+    
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    frame.setLocation((screenSize.width - frame.getWidth()) / 2, (screenSize.height - frame.getHeight()) / 2);
 
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.addKeyListener(new KeyboardListener(inputState));

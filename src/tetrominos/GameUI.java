@@ -8,7 +8,7 @@ public class GameUI extends JPanel {
     private final int ROWS;
     private final int COLS;
     private final Board board;
-    private final int CELL_SIZE = 30;
+    private final int CELL_SIZE = 40;
 
     public GameUI(GameEnvironment env) {
         this.env = env;

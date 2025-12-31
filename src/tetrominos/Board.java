@@ -19,7 +19,11 @@ public class Board {
             int boardX = tetromino.getX() + point.x;
             int boardY = tetromino.getY() + point.y;
 
-            if (boardX < 0 || boardX >= columns || boardY < 0 || boardY >= rows) {
+            if (boardY < 0) {
+                continue; // Allow blocks to be above the board
+            }
+
+            if (boardX < 0 || boardX >= columns || boardY >= rows) {
                 return false; // Out of bounds
             }
 

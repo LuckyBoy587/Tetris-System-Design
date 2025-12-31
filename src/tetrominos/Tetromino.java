@@ -10,11 +10,10 @@ public class Tetromino {
     private int y;
     private final List<List<Point>> rotationPoints;
 
-    public Tetromino(TetrominoType type, int x, int y) {
+    public Tetromino(TetrominoType type) {
         this.type = type;
-        this.x = x;
-        this.y = y;
         this.rotationPoints = type.getRotationPoints();
+        this.y = -getMaxHeight();
     }
 
     public TetrominoType getType() {
@@ -41,10 +40,10 @@ public class Tetromino {
         _rotation_index = (_rotation_index - 1 + rotationPoints.size()) % rotationPoints.size();
     }
 
-    public static Tetromino randomTetromino(int x, int y) {
+    public static Tetromino randomTetromino() {
         TetrominoType[] types = TetrominoType.values();
         int randomIndex = (int) (Math.random() * types.length);
-        return new Tetromino(types[randomIndex], x, y);
+        return new Tetromino(types[randomIndex]);
     }
 
     public void moveDown() {
@@ -61,5 +60,29 @@ public class Tetromino {
 
     public void moveRight() {
         this.x += 1;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getWidth() {
+        int maxX = 0;
+        for (Point point : getPoints()) {
+            if (point.x > maxX) {
+                maxX = point.x;
+            }
+        }
+        return maxX + 1;
+    }
+
+    public int getMaxHeight() {
+        int maxY = 0;
+        for (Point point : getPoints()) {
+            if (point.y > maxY) {
+                maxY = point.y;
+            }
+        }
+        return maxY + 1; // +1 because y starts from 0
     }
 }

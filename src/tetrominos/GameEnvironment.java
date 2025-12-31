@@ -6,10 +6,11 @@ import java.util.Set;
 
 public class GameEnvironment {
     private final Board board;
-    private Tetromino currentTetromino = Tetromino.randomTetromino(4, 0);
+    private Tetromino currentTetromino;
 
     public GameEnvironment(int rows, int columns) {
         this.board = new Board(rows, columns);
+        spawnNewTetromino();
     }
 
     public Board getBoard() {
@@ -78,7 +79,9 @@ public class GameEnvironment {
     }
 
     public void spawnNewTetromino() {
-        currentTetromino = Tetromino.randomTetromino(4, 0);
+        currentTetromino = Tetromino.randomTetromino();
+        int centeredX = (board.getColumns() - currentTetromino.getWidth()) / 2;
+        currentTetromino.setX(centeredX);
     }
 
     @Override
