@@ -1,7 +1,9 @@
-import input_listener.GameMovement;
+import events.EventQueue;
+import events.EventType;
+import events.GameEvent;
 import input_listener.InputState;
+import input_listener.InputSystem;
 import input_listener.KeyboardListener;
-import input_listener.MovementState;
 import schedulers.FrameScheduler;
 import schedulers.GameLoop;
 import schedulers.Interval;
@@ -14,13 +16,16 @@ import java.awt.*;
 void main() {
     final int ROWS = 15;
     final int COLS = 10;
-    GameLoop loop = new GameLoop();
-    FrameScheduler scheduler = loop.getScheduler();
-    InputState inputState = new InputState();
+    
+    // Core Systems
+    EventQueue eventQueue = new EventQueue();
     GameEnvironment env = new GameEnvironment(ROWS, COLS);
+    InputState inputState = new InputState();
+    InputSystem inputSystem = new InputSystem(inputState, eventQueue);
+    
+    // UI Setup
     JFrame frame = new JFrame("Game");
     GameUI ui = new GameUI(env);
-    MovementState movementState = new MovementState();
     frame.add(ui);
     frame.pack();
     
@@ -31,36 +36,42 @@ void main() {
     frame.addKeyListener(new KeyboardListener(inputState));
     frame.setVisible(true);
 
-    scheduler.scheduleEvery(500, Interval.MILLISECONDS, () -> {
+    // Loop & Scheduler
+    GameLoop loop = new GameLoop();
+    FrameScheduler scheduler = loop.getScheduler();
+
+    // 1. Gravity (Timer-based event generation)
+    scheduler.scheduleEvery(500, Interval.MILLISECONDS, () -> eventQueue.publish(new GameEvent(EventType.GRAVITY_TICK)));
+
+    // 2. Input Polling (Generates Events)
+    scheduler.scheduleEvery(1, Interval.FRAMES, inputSystem::update); // On press
+    scheduler.scheduleEvery(5, Interval.FRAMES, inputSystem::updateHeld); // On hold
+
+    // 3. Event Processing (The "Event Loop" part)
+    scheduler.scheduleEvery(1, Interval.FRAMES, () -> {
+        while (!eventQueue.isEmpty()) {
+            GameEvent event = eventQueue.poll();
+            
+            // Global handlers or dispatch to components
+            if (event.type() == EventType.GAME_OVER) {
+                System.out.println("Game Over!");
+                loop.stop();
+            } else {
+                env.onEvent(event);
+            }
+        }
+        
+        // Check game over state *after* processing events (or could be an event itself)
         if (env.isGameOver()) {
-            System.out.println("Game Over!");
-            loop.stop();
-        }
-        env.gravityUpdate();
-    });
-
-    scheduler.scheduleEvery(1, Interval.FRAMES, () -> {
-        for (GameMovement movement: GameMovement.values()) {
-            if (inputState.isKeyPressed(movement)) {
-                movementState.addMovement(movement);
-            }
-        }
-        inputState.nextFrame();
-    });
-
-    scheduler.scheduleEvery(5, Interval.FRAMES, () -> {
-        for (GameMovement movement: GameMovement.values()) {
-            if (inputState.isKeyHeldDown(movement)) {
-                movementState.addMovement(movement);
-            }
+             // We could publish a GAME_OVER event here to be handled next frame, 
+             // but for simplicity we stop immediately or print.
+             System.out.println("Game Over!");
+             loop.stop();
         }
     });
 
-    scheduler.scheduleEvery(1, Interval.FRAMES, () -> {
-        env.update(movementState.getMovements());
-        movementState.reset();
-    });
-
+    // 4. Render
     scheduler.scheduleEvery(1, Interval.FRAMES, ui::repaint);
+
     new Thread(loop).start();
 }
