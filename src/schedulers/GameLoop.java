@@ -5,7 +5,7 @@ public class GameLoop implements Runnable {
     private static final long FRAME_TIME = 1000 / FPS;
 
     private boolean running = true;
-    private int frameCount = 0;
+    private long frameCount = 0;
 
     private final FrameScheduler scheduler = new FrameScheduler(FPS);
 

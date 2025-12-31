@@ -1,5 +1,9 @@
 package tetrominos;
 
+import input_listener.GameMovement;
+
+import java.util.Set;
+
 public class GameEnvironment {
     private final Board board;
     private Tetromino currentTetromino = Tetromino.randomTetromino(4, 0);
@@ -17,8 +21,8 @@ public class GameEnvironment {
     }
 
     public void gravityUpdate() {
-        currentTetromino.moveDown();
         handleIfLanded();
+        currentTetromino.moveDown();
     }
 
     public void moveLeft() {
@@ -46,8 +50,7 @@ public class GameEnvironment {
             currentTetromino.moveDown();
         }
         currentTetromino.moveUp();
-        board.placeTetromino(currentTetromino);
-        spawnNewTetromino();
+        onTetrominoLanded();
     }
 
     private void handleIfLanded() {
@@ -55,8 +58,22 @@ public class GameEnvironment {
         boolean hasLanded = !board.isValidPosition(currentTetromino);
         currentTetromino.moveUp();
         if (hasLanded) {
-            board.placeTetromino(currentTetromino);
-            spawnNewTetromino();
+            onTetrominoLanded();
+        }
+    }
+
+    private void onTetrominoLanded() {
+        board.placeTetromino(currentTetromino);
+        clearLines();
+        spawnNewTetromino();
+    }
+
+    private void clearLines() {
+        // Implementation for clearing completed lines from the board
+        for (int row = board.getRows() - 1; row >= 0; row--) {
+            while (board.isRowComplete(row)) {
+                board.pullDownRowsAbove(row);
+            }
         }
     }
 
@@ -71,5 +88,16 @@ public class GameEnvironment {
 
     public boolean isGameOver() {
         return !board.isValidPosition(currentTetromino);
+    }
+
+    public void update(Set<GameMovement> movementStates) {
+        for (GameMovement movement : movementStates) {
+            switch (movement) {
+                case LEFT -> moveLeft();
+                case RIGHT -> moveRight();
+                case SPACE -> rotate();
+                case DOWN -> softDrop();
+            }
+        }
     }
 }
