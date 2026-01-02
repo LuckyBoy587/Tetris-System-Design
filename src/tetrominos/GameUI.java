@@ -8,7 +8,7 @@ public class GameUI extends JPanel {
     private final int ROWS;
     private final int COLS;
     private final Board board;
-    private final int CELL_SIZE = 40;
+    private final int CELL_SIZE = 30;
 
     public GameUI(GameEnvironment env) {
         this.env = env;
@@ -39,14 +39,21 @@ public class GameUI extends JPanel {
     private void renderBoard(Graphics g) {
         for (int y = 0; y < ROWS; y++) {
             for (int x = 0; x < COLS; x++) {
-                TetrominoType type = board.getCell(x, y);
-                if (type != null) {
-                    g.setColor(type.getColor());
-                    g.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                    g.setColor(Color.BLACK);
-                    g.drawRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                }
+                Cell cell = board.getCell(x, y);
+                renderCell(g, cell);
             }
+        }
+    }
+
+    private void renderCell(Graphics g, Cell cell) {
+        TetrominoType type = cell.getType();
+        if (type != null) {
+            int xCoords = (int) (cell.getScreenX() * CELL_SIZE);
+            int yCoords = (int) (cell.getScreenY() * CELL_SIZE);
+            g.setColor(type.getColor());
+            g.fillRect(xCoords, yCoords, CELL_SIZE, CELL_SIZE);
+            g.setColor(Color.BLACK);
+            g.drawRect(xCoords, yCoords, CELL_SIZE, CELL_SIZE);
         }
     }
 

@@ -1,21 +1,29 @@
 package tetrominos;
 
 import java.awt.*;
-import java.util.Arrays;
 
 public class Board {
     private final int rows;
     private final int columns;
-    private final TetrominoType[][] grid;
+    private final Cell[][] dynamicGrid;
 
     public Board(int rows, int columns) {
         this.rows = rows;
         this.columns = columns;
-        this.grid = new TetrominoType[rows][columns];
+        this.dynamicGrid = new Cell[rows][columns];
+        initializeDynamicGrid();
     }
-    
+
+    private void initializeDynamicGrid() {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                dynamicGrid[i][j] = new Cell();
+            }
+        }
+    }
+
     public boolean isValidPosition(Tetromino tetromino) {
-        for (Point point: tetromino.getPoints()) {
+        for (Point point : tetromino.getPoints()) {
             int boardX = tetromino.getX() + point.x;
             int boardY = tetromino.getY() + point.y;
 
@@ -27,7 +35,7 @@ public class Board {
                 return false; // Out of bounds
             }
 
-            if (grid[boardY][boardX] != null) {
+            if (dynamicGrid[boardY][boardX].getType() != null) {
                 return false; // Collision with existing block
             }
         }
@@ -35,37 +43,17 @@ public class Board {
     }
 
     public void placeTetromino(Tetromino tetromino) {
-        for (Point point: tetromino.getPoints()) {
+        for (Point point : tetromino.getPoints()) {
             int boardX = tetromino.getX() + point.x;
             int boardY = tetromino.getY() + point.y;
-            grid[boardY][boardX] = tetromino.getType();
-        }
-    }
 
-    public String toStringWithTetromino(Tetromino currentTetromino) {
-        StringBuilder sb = new StringBuilder();
-        for (int y = 0; y < rows; y++) {
-            for (int x = 0; x < columns; x++) {
-                boolean isCurrentTetrominoBlock = false;
-                for (Point point : currentTetromino.getPoints()) {
-                    int tetrominoX = currentTetromino.getX() + point.x;
-                    int tetrominoY = currentTetromino.getY() + point.y;
-                    if (tetrominoX == x && tetrominoY == y) {
-                        isCurrentTetrominoBlock = true;
-                        break;
-                    }
-                }
-                if (isCurrentTetrominoBlock) {
-                    sb.append(currentTetromino.getType().name().charAt(0));
-                } else if (grid[y][x] != null) {
-                    sb.append(grid[y][x].name().charAt(0));
-                } else {
-                    sb.append(".");
-                }
+            if (boardY >= 0) {
+                Cell cell = dynamicGrid[boardY][boardX];
+                cell.setType(tetromino.getType());
+                cell.setSource(boardX, boardY);
+                cell.setDestination(boardX, boardY);
             }
-            sb.append("\n");
         }
-        return sb.toString();
     }
 
     public int getRows() {
@@ -76,13 +64,13 @@ public class Board {
         return columns;
     }
 
-    public TetrominoType getCell(int x, int y) {
-        return grid[y][x];
+    public Cell getCell(int x, int y) {
+        return dynamicGrid[y][x];
     }
 
     public boolean isRowComplete(int row) {
         for (int x = 0; x < columns; x++) {
-            if (grid[row][x] == null) {
+            if (dynamicGrid[row][x].getType() == null) {
                 return false;
             }
         }
@@ -90,9 +78,35 @@ public class Board {
     }
 
     public void pullDownRowsAbove(int row) {
-        for (int y = row; y > 0; y--) {
-            if (columns >= 0) System.arraycopy(grid[y - 1], 0, grid[y], 0, columns);
+        for (int i = row; i > 0; i--) {
+            if (columns >= 0) {
+                for (int j = 0; j < columns; j++) {
+                    dynamicGrid[i][j] = dynamicGrid[i - 1][j];
+                    if (dynamicGrid[i][j].getType() != null) {
+                        dynamicGrid[i][j].setDestY(i);
+                    }
+                }
+            }
         }
-        Arrays.fill(grid[0], null);
+        for (int j = 0; j < columns; j++) {
+            dynamicGrid[0][j] = new Cell();
+        }
+    }
+
+    public boolean isTopReached() {
+        for (int x = 0; x < columns; x++) {
+            if (dynamicGrid[0][x].getType() != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void onFrameTick() {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                dynamicGrid[i][j].update();
+            }
+        }
     }
 }

@@ -1,7 +1,7 @@
 package schedulers;
 
 public class GameLoop implements Runnable {
-    private static final int FPS = 60;
+    public static final int FPS = 60;
     private static final long FRAME_TIME = 1000 / FPS;
 
     private boolean running = true;

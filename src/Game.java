@@ -22,13 +22,12 @@ void main() {
     GameEnvironment env = new GameEnvironment(ROWS, COLS);
     InputState inputState = new InputState();
     InputSystem inputSystem = new InputSystem(inputState, eventQueue);
-    
     // UI Setup
     JFrame frame = new JFrame("Game");
     GameUI ui = new GameUI(env);
     frame.add(ui);
     frame.pack();
-    
+
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     frame.setLocation((screenSize.width - frame.getWidth()) / 2, (screenSize.height - frame.getHeight()) / 2);
 
@@ -44,8 +43,8 @@ void main() {
     scheduler.scheduleEvery(500, Interval.MILLISECONDS, () -> eventQueue.publish(new GameEvent(EventType.GRAVITY_TICK)));
 
     // 2. Input Polling (Generates Events)
-    scheduler.scheduleEvery(1, Interval.FRAMES, inputSystem::update); // On press
-    scheduler.scheduleEvery(5, Interval.FRAMES, inputSystem::updateHeld); // On hold
+    scheduler.scheduleEvery(1, Interval.FRAMES, inputSystem::updateKeyPress); // On press
+    scheduler.scheduleEvery(5, Interval.FRAMES, inputSystem::updateKeyHeld); // On hold
 
     // 3. Event Processing (The "Event Loop" part)
     scheduler.scheduleEvery(1, Interval.FRAMES, () -> {
@@ -70,6 +69,7 @@ void main() {
         }
     });
 
+    scheduler.scheduleEvery(1, Interval.FRAMES, env::onFrameTick);
     // 4. Render
     scheduler.scheduleEvery(1, Interval.FRAMES, ui::repaint);
 

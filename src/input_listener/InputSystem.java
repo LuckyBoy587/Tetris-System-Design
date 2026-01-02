@@ -7,21 +7,13 @@ import events.GameEvent;
 public class InputSystem {
     private final InputState inputState;
     private final EventQueue eventQueue;
-    private final MovementState movementState; // Use MovementState to track repeat intervals if needed, or simplify
 
     public InputSystem(InputState inputState, EventQueue eventQueue) {
         this.inputState = inputState;
         this.eventQueue = eventQueue;
-        this.movementState = new MovementState();
     }
 
-    public void update() {
-        // Simple logic: If key is pressed (newly), emit event.
-        // If key is held, emit event periodically (managed by GameLoop or internal timer).
-        // For this refactoring, we'll follow the existing pattern:
-        // InputState tracks "pressed" (current frame) and "held" (duration).
-        
-        // Check for new presses
+    public void updateKeyPress() {
         for (GameMovement movement : GameMovement.values()) {
              if (inputState.isKeyPressed(movement)) {
                  publishEvent(movement);
@@ -31,7 +23,7 @@ public class InputSystem {
         inputState.nextFrame();
     }
     
-    public void updateHeld() {
+    public void updateKeyHeld() {
         for (GameMovement movement : GameMovement.values()) {
             if (inputState.isKeyHeldDown(movement)) {
                 publishEvent(movement);

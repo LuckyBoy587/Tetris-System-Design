@@ -2,17 +2,13 @@ package tetrominos;
 
 import events.GameEvent;
 import events.GameEventListener;
-import events.EventType;
-import input_listener.GameMovement;
-
-import java.util.Set;
 
 public class GameEnvironment implements GameEventListener {
     private final Board board;
     private Tetromino currentTetromino;
 
     public GameEnvironment(int rows, int columns) {
-        this.board = new Board(rows, columns);
+        board = new Board(rows, columns);
         spawnNewTetromino();
     }
 
@@ -25,6 +21,10 @@ public class GameEnvironment implements GameEventListener {
             case INPUT_SOFT_DROP -> softDrop();
             case GRAVITY_TICK -> gravityUpdate();
         }
+    }
+
+    public void onFrameTick() {
+        board.onFrameTick();
     }
 
     public Board getBoard() {
@@ -46,7 +46,8 @@ public class GameEnvironment implements GameEventListener {
             currentTetromino.moveRight();
         }
     }
-     public void moveRight() {
+
+    public void moveRight() {
         currentTetromino.moveRight();
         if (!board.isValidPosition(currentTetromino)) {
             currentTetromino.moveLeft();
@@ -65,7 +66,6 @@ public class GameEnvironment implements GameEventListener {
             currentTetromino.moveDown();
         }
         currentTetromino.moveUp();
-        onTetrominoLanded();
     }
 
     private void handleIfLanded() {
@@ -98,12 +98,7 @@ public class GameEnvironment implements GameEventListener {
         currentTetromino.setX(centeredX);
     }
 
-    @Override
-    public String toString() {
-        return "==================\n" + board.toStringWithTetromino(currentTetromino) + "\n=================";
-    }
-
     public boolean isGameOver() {
-        return !board.isValidPosition(currentTetromino);
+        return board.isTopReached();
     }
 }
