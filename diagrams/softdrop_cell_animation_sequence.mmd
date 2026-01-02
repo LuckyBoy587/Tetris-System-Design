@@ -1,0 +1,22 @@
+sequenceDiagram
+    participant User
+    participant KeyboardListener
+    participant InputSystem
+    participant GameLoop
+    participant Tetromino
+    participant Cell
+    participant VisualPosition
+
+    User->>KeyboardListener: Press softdrop key (e.g., down arrow)
+    KeyboardListener->>InputSystem: Detect key press
+    InputSystem->>GameLoop: Enable softdrop mode (faster drop speed)
+
+    loop Game Loop (each frame)
+        GameLoop->>Tetromino: Update position (drop faster due to softdrop)
+        Tetromino->>Cell: Move cell to new logical position
+        Cell->>VisualPosition: Set destination to new position
+        GameLoop->>VisualPosition: Update animation (deltaTime)
+        VisualPosition->>VisualPosition: Accelerate and move srcX/srcY towards destX/destY
+    end
+
+    Note over VisualPosition: Animation continues until src reaches dest

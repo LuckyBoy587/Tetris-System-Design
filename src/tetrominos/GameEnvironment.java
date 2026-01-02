@@ -1,16 +1,30 @@
 package tetrominos;
 
-import input_listener.GameMovement;
+import events.GameEvent;
+import events.GameEventListener;
 
-import java.util.Set;
-
-public class GameEnvironment {
+public class GameEnvironment implements GameEventListener {
     private final Board board;
     private Tetromino currentTetromino;
 
     public GameEnvironment(int rows, int columns) {
-        this.board = new Board(rows, columns);
+        board = new Board(rows, columns);
         spawnNewTetromino();
+    }
+
+    @Override
+    public void onEvent(GameEvent event) {
+        switch (event.type()) {
+            case INPUT_LEFT -> moveLeft();
+            case INPUT_RIGHT -> moveRight();
+            case INPUT_ROTATE -> rotate();
+            case INPUT_SOFT_DROP -> softDrop();
+            case GRAVITY_TICK -> gravityUpdate();
+        }
+    }
+
+    public void onFrameTick() {
+        board.onFrameTick();
     }
 
     public Board getBoard() {
@@ -32,7 +46,8 @@ public class GameEnvironment {
             currentTetromino.moveRight();
         }
     }
-     public void moveRight() {
+
+    public void moveRight() {
         currentTetromino.moveRight();
         if (!board.isValidPosition(currentTetromino)) {
             currentTetromino.moveLeft();
@@ -51,7 +66,6 @@ public class GameEnvironment {
             currentTetromino.moveDown();
         }
         currentTetromino.moveUp();
-        onTetrominoLanded();
     }
 
     private void handleIfLanded() {
@@ -84,23 +98,7 @@ public class GameEnvironment {
         currentTetromino.setX(centeredX);
     }
 
-    @Override
-    public String toString() {
-        return "==================\n" + board.toStringWithTetromino(currentTetromino) + "\n=================";
-    }
-
     public boolean isGameOver() {
-        return !board.isValidPosition(currentTetromino);
-    }
-
-    public void update(Set<GameMovement> movementStates) {
-        for (GameMovement movement : movementStates) {
-            switch (movement) {
-                case LEFT -> moveLeft();
-                case RIGHT -> moveRight();
-                case SPACE -> rotate();
-                case DOWN -> softDrop();
-            }
-        }
+        return board.isTopReached();
     }
 }
