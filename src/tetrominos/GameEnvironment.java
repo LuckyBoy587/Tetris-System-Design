@@ -98,6 +98,15 @@ public class GameEnvironment implements GameEventListener {
         currentTetromino.setX(centeredX);
     }
 
+    public Tetromino getShadowTetromino() {
+        Tetromino shadow = currentTetromino.clone();
+        while (board.isValidPosition(shadow)) {
+            shadow.moveDown();
+        }
+        shadow.moveUp();
+        return shadow;
+    }
+
     public boolean isGameOver() {
         return board.isTopReached();
     }

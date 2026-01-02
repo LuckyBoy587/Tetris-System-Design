@@ -3,7 +3,7 @@ package tetrominos;
 import java.awt.*;
 import java.util.List;
 
-public class Tetromino {
+public class Tetromino implements Cloneable {
     private final TetrominoType type;
     private int _rotation_index = 0;
     private int x;
@@ -84,5 +84,14 @@ public class Tetromino {
             }
         }
         return maxY + 1; // +1 because y starts from 0
+    }
+
+    @Override
+    public Tetromino clone() {
+        try {
+            return (Tetromino) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

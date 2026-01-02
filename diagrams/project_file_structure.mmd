@@ -1,0 +1,44 @@
+graph TD
+    root[Tetris]
+    root --> src[src]
+
+    subgraph src
+        game[Game.java]
+        events[events]
+        input[input_listener]
+        schedulers[schedulers]
+        tetrominos[tetrominos]
+
+        subgraph events
+            ed[EventDispatcher.java]
+            eq[EventQueue.java]
+            et[EventType.java]
+            ge[GameEvent.java]
+            gel[GameEventListener.java]
+        end
+
+        subgraph input
+            gm[GameMovement.java]
+            is[InputState.java]
+            insys[InputSystem.java]
+            kl[KeyboardListener.java]
+        end
+
+        subgraph schedulers
+            fs[FrameScheduler.java]
+            gl[GameLoop.java]
+            gt[GameTask.java]
+            i[Interval.java]
+            st[ScheduledTask.java]
+        end
+
+        subgraph tetrominos
+            b[Board.java]
+            c[Cell.java]
+            genv[GameEnvironment.java]
+            gui[GameUI.java]
+            t[Tetromino.java]
+            tt[TetrominoType.java]
+            vp[VisualPosition.java]
+        end
+    end

@@ -60,7 +60,7 @@ void main() {
             }
         }
         
-        // Check game over state *after* processing events (or could be an event itself)
+        // Check game-overstate *after* processing events (or could be an event itself)
         if (env.isGameOver()) {
              // We could publish a GAME_OVER event here to be handled next frame, 
              // but for simplicity we stop immediately or print.

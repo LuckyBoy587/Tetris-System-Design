@@ -23,7 +23,8 @@ public class GameUI extends JPanel {
         super.paintComponent(g);
         renderGrid(g);
         renderBoard(g);
-        renderCurrentTetromino(g);
+        renderTetromino(g, env.getCurrentTetromino(), false);
+        renderTetromino(g, env.getShadowTetromino(), true);
     }
 
     private void renderGrid(Graphics g) {
@@ -57,18 +58,34 @@ public class GameUI extends JPanel {
         }
     }
 
-    private void renderCurrentTetromino(Graphics g) {
-        Tetromino current = env.getCurrentTetromino();
-        if (current != null) {
-            g.setColor(current.getType().getColor());
-            for (Point p : current.getPoints()) {
-                int drawX = (current.getX() + p.x) * CELL_SIZE;
-                int drawY = (current.getY() + p.y) * CELL_SIZE;
+    private void renderTetromino(Graphics g, Tetromino tetromino, boolean isShadow) {
+        if (tetromino != null) {
+            for (Point p : tetromino.getPoints()) {
+                int drawX = (tetromino.getX() + p.x) * CELL_SIZE;
+                int drawY = (tetromino.getY() + p.y) * CELL_SIZE;
+                if (isShadow) {
+                    g.setColor(getShadowColor(tetromino.getType().getColor()));
+                } else {
+                    g.setColor(tetromino.getType().getColor());
+                }
                 g.fillRect(drawX, drawY, CELL_SIZE, CELL_SIZE);
-                g.setColor(Color.BLACK);
+                if (isShadow) {
+                    g.setColor(getShadowColor(Color.BLACK));
+                } else {
+                    g.setColor(Color.BLACK);
+                }
                 g.drawRect(drawX, drawY, CELL_SIZE, CELL_SIZE);
-                g.setColor(current.getType().getColor());
             }
         }
+    }
+
+    private Color getShadowColor(Color color) {
+        int alpha = (int) (0.25f * 255); // 25% transparent
+        return new Color(
+                color.getRed(),
+                color.getGreen(),
+                color.getBlue(),
+                alpha
+        );
     }
 }
